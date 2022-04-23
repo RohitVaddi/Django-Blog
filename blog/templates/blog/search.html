@@ -1,0 +1,51 @@
+{% extends "blog/base.html" %}
+{% block homeactive %} active {% endblock homeactive %}
+{% block content %}
+<div class="container">
+ <h2>Search Results :</h2>
+    {% if allPosts|length <= 0 %}
+    <p>No Search Results</p>
+    Your search query : <b>{{ query }}</b> did not match any doucument. <br>
+    Suggestions:
+    <ul>
+        <li>Make sure that all words are spell correctly.</li>
+        <li>Try different keywords.</li>
+        <li>Try more general keywords.</li>
+        <li>Try fewer keywords.</li>
+    </ul>
+    {% endif %}
+    {% for post in allPosts %}
+        <article class="media content-section my-3">
+          <img class="article-img rounded-circle" src="{{ post.author.profile.image.url }}" alt="">
+          <div class="media-body">
+            <div class="article-metadata">
+              <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
+              <small class="text-muted">{{ post.date_posted|date:'d F, Y' }}</small>
+            </div>
+            <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
+            <p class="article-content">{{ post.content|safe|truncatechars:300 }}</p>
+          </div>
+        </article>
+    {% endfor %}
+    {% if is_paginated %}
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class='btn btn-outline-info mb-4'>First</a>
+        <a href="?page={{page_obj.previous_page_number}}" class='btn btn-outline-info mb-4'>Previous</a>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+              <a href="?page={{num}}" class='btn btn-info mb-4'>{{num}}</a>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}  
+              <a href="?page={{num}}" class='btn btn-outline-info mb-4'>{{num}}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{page_obj.next_page_number}}" class='btn btn-outline-info mb-4'>Next</a>
+        <a href="?page={{page_obj.paginator.num_pages}}" class='btn btn-outline-info mb-4'>Last</a>
+        {% endif %}
+    {% endif %}
+</div>
+
+{% endblock content %}
